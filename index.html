@@ -441,7 +441,7 @@ function updateStats(signed, total, signedPct) {
 
 // ── FETCH SHEET CSV ──────────────────────────────────────────────────────────
 async function fetchSheetData() {
-  const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTdt7C19LESnicFSoaMqgBNNNc37yCxxTVxG-hehWBINREGx2Yh8Mgp63bBSDqyYFKh3U0gxOXz8xKV/pub?gid=1106530303&single=true&output=csv&cachebust=${Date.now()}`;
+  const url = `https://docs.google.com/spreadsheets/d/1cBtwAIQYJKiHkvTh2dCP_925hREI8FAnxeNWfB8obts/pub?gid=1106530303&single=true&output=csv&cachebust=${Date.now()}`;
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
   const text = await res.text();
