@@ -489,9 +489,7 @@ async function fetchSheetData() {
       : '0';
     const totalPct = parseFloat(rawPct) || 0;
 
-    // Sum percentage for yes rows directly from sheet
     if (status === 'yes') {
-      signedPctFromSheet += totalPct;
       signedCountFromSheet++;
     }
 
@@ -503,7 +501,19 @@ async function fetchSheetData() {
   }
 
   // Attach the sheet-computed totals so renderMap can use them directly
-  lookup.__sheetSignedPct   = signedPctFromSheet;
+    // Compute percentage: sum(assessment | yes) / sum(assessment | yes+no+n/a)
+  let numerator   = 0;
+  let denominator = 0;
+  for (const [key, rec] of Object.entries(lookup)) {
+    if (key.startsWith('__')) continue;
+    const s = rec.status.trim().toLowerCase();
+    const amt = rec.totalPct; // this is the raw assessment dollar amount from the sheet
+    if (s === 'yes' || s === 'no' || s === 'n/a') denominator += amt;
+    if (s === 'yes') numerator += amt;
+  }
+  const computedPct = denominator > 0 ? (numerator / denominator) * 100 : 0;
+
+  lookup.__sheetSignedPct   = computedPct;
   lookup.__sheetSignedCount = signedCountFromSheet;
 
   return lookup;
@@ -538,7 +548,6 @@ function getParcelStyle(status) {
   return                       { fillColor: '#f59e0b', fillOpacity: 0.15, color: '#d97706', weight: 1, opacity: 0.8 };
 }
 
-// ── RENDER MAP ───────────────────────────────────────────────────────────────
 function renderMap(geojson, lookup) {
   if (geojsonLayer) { map.removeLayer(geojsonLayer); }
 
@@ -561,7 +570,6 @@ function renderMap(geojson, lookup) {
     const coords = JSON.stringify(f.geometry?.coordinates);
     const id = geoVal(f.properties?.[BLKLOT_GEO]);
     const rec = lookup[id];
-    // Only push a status if this blklot actually exists in the sheet
     if (rec) {
       const raw = rec.status.replace(/^"|"$/g, '').trim().toLowerCase();
       const status = raw === 'yes' ? 'yes' : raw === 'no' ? 'no' : raw === 'city property' ? 'city property' : raw === 'N/A' ? 'N/A' : 'N/A';
