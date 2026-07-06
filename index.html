@@ -6,6 +6,7 @@
 <title>DSFP Ballot Tracking Map</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
 <style>
   @font-face {
     font-family: 'Quasimoda';
@@ -21,20 +22,22 @@
     --border: #252a38;
     --text: #e8eaf0;
     --text-muted: #6b7280;
+
     --green: #22c55e;
+    --green-dark: #16a34a;
     --green-dim: rgba(34,197,94,0.15);
+
     --red: #ef4444;
     --red-dim: rgba(239,68,68,0.15);
-    --yellow: #eab308;
-    --yellow-dim: rgba(234, 179, 8, 0.1);
-    --amber: #f59e0b;
+
+    --orange: #f59e0b;
+    --orange-dark: #d97706;
+    --orange-dim: rgba(245,158,11,0.15);
+
+    --grey-fill: rgba(100,116,139,0.28);
+    --grey-border: rgba(148,163,184,0.7);
+
     --blue-accent: #3b82f6;
-    --parcel-default: rgba(100, 116, 139, 0.35);
-    --parcel-signed: rgba(34, 197, 94, 0.55);
-    --parcel-border-default: rgba(148, 163, 184, 0.6);
-    --parcel-border-signed: rgba(34, 197, 94, 0.9);
-    --magenta: #d946ef;
-    --magenta-dim: rgba(217, 70, 239, 0.15);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -126,7 +129,7 @@
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #f59e0b, #16a34a);
+    background: linear-gradient(90deg, var(--orange), var(--green-dark));
     border-radius: 2px;
     transition: width 0.6s ease;
   }
@@ -148,8 +151,15 @@
     margin-right: 6px;
     transition: background 0.3s;
   }
-  .status-dot.live { background: var(--green); animation: pulse 2s infinite; }
-  .status-dot.error { background: #ef4444; }
+
+  .status-dot.live {
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  .status-dot.error {
+    background: var(--red);
+  }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -168,14 +178,26 @@
   }
 
   .leaflet-tile-pane { filter: none; }
-  .leaflet-control-attribution { background: rgba(15,17,23,0.85) !important; color: #4b5563 !important; font-size: 9px !important; }
-  .leaflet-control-attribution a { color: #6b7280 !important; }
+
+  .leaflet-control-attribution {
+    background: rgba(15,17,23,0.85) !important;
+    color: #4b5563 !important;
+    font-size: 9px !important;
+  }
+
+  .leaflet-control-attribution a {
+    color: #6b7280 !important;
+  }
+
   .leaflet-control-zoom a {
     background: var(--surface) !important;
     color: var(--text) !important;
     border-color: var(--border) !important;
   }
-  .leaflet-control-zoom a:hover { background: var(--border) !important; }
+
+  .leaflet-control-zoom a:hover {
+    background: var(--border) !important;
+  }
 
   .leaflet-popup-content-wrapper {
     background: var(--surface);
@@ -185,8 +207,15 @@
     color: var(--text);
     font-family: 'Quasimoda', 'DM Sans', sans-serif;
   }
-  .leaflet-popup-tip { background: var(--surface); }
-  .leaflet-popup-content { margin: 14px 16px; min-width: 200px; }
+
+  .leaflet-popup-tip {
+    background: var(--surface);
+  }
+
+  .leaflet-popup-content {
+    margin: 14px 16px;
+    min-width: 200px;
+  }
 
   .popup-header {
     font-family: 'Quasimoda', monospace;
@@ -207,8 +236,17 @@
     font-size: 12px;
   }
 
-  .popup-key { color: var(--text-muted); }
-  .popup-val { color: var(--text); font-weight: 500; text-align: right; max-width: 160px; word-break: break-word; }
+  .popup-key {
+    color: var(--text-muted);
+  }
+
+  .popup-val {
+    color: var(--text);
+    font-weight: 500;
+    text-align: right;
+    max-width: 160px;
+    word-break: break-word;
+  }
 
   .badge {
     display: inline-block;
@@ -220,11 +258,31 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  .badge-yes { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-  .badge-no-explicit { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-  .badge-N/A { background: rgba(217,70,239,0.15); color: #d946ef; border: 1px solid rgba(217,70,239,0.3); }
-  .badge-city { background: rgba(15, 136, 168,0.15); color: #0F88A8; border: 1px solid rgba(15, 136, 168,0.3); }
-  .badge-no { background: rgba(100,116,139,0.15); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .badge-yes,
+  .badge-city {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.3);
+  }
+
+  .badge-no-explicit {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+
+  .badge-na {
+    background: var(--orange-dim);
+    color: var(--orange);
+    border: 1px solid rgba(245,158,11,0.35);
+  }
+
+  .badge-pending {
+    background: rgba(100,116,139,0.15);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
 
   .loading-overlay {
     position: fixed;
@@ -238,7 +296,11 @@
     z-index: 9999;
     transition: opacity 0.4s;
   }
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
 
   .loader-label {
     font-family: 'Quasimoda', monospace;
@@ -254,7 +316,10 @@
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 
   .error-banner {
     display: none;
@@ -285,6 +350,7 @@
     z-index: 800;
     font-size: 11px;
   }
+
   .legend-title {
     font-family: 'Quasimoda', monospace;
     font-size: 10px;
@@ -293,6 +359,7 @@
     letter-spacing: 0.06em;
     margin-bottom: 8px;
   }
+
   .legend-item {
     display: flex;
     align-items: center;
@@ -301,17 +368,38 @@
     font-size: 11px;
     color: var(--text-muted);
   }
+
   .legend-swatch {
     width: 14px;
     height: 14px;
     border-radius: 2px;
     flex-shrink: 0;
   }
-  .swatch-signed  { background: rgba(34,197,94,0.5);  border: 1.5px solid #16a34a; }
-  .swatch-no      { background: rgba(239,68,68,0.4);  border: 1.5px solid #ef4444; }
-  .swatch-N/A { background: rgba(217,70,239,0.4); border: 1.5px solid #d946ef; }
-  .swatch-city      { background: rgba(15, 136, 168,0.4);  border: 1.5px solid #0F88A8; }
-  .swatch-unsigned{ background: rgba(245,158,11,0.25); border: 1.5px solid #d97706; }
+
+  .swatch-yes {
+    background: rgba(34,197,94,0.55);
+    border: 1.5px solid var(--green-dark);
+  }
+
+  .swatch-no {
+    background: rgba(239,68,68,0.45);
+    border: 1.5px solid var(--red);
+  }
+
+  .swatch-city {
+    background: rgba(34,197,94,0.55);
+    border: 1.5px solid var(--green-dark);
+  }
+
+  .swatch-na {
+    background: rgba(245,158,11,0.45);
+    border: 1.5px solid var(--orange-dark);
+  }
+
+  .swatch-pending {
+    background: var(--grey-fill);
+    border: 1.5px solid var(--grey-border);
+  }
 
   .refresh-btn {
     background: var(--border);
@@ -327,9 +415,15 @@
     transition: all 0.2s;
     flex-shrink: 0;
   }
-  .refresh-btn:hover { background: var(--blue-accent); color: white; border-color: var(--blue-accent); }
+
+  .refresh-btn:hover {
+    background: var(--blue-accent);
+    color: white;
+    border-color: var(--blue-accent);
+  }
 </style>
 </head>
+
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -350,25 +444,32 @@
       <span class="stat-value green" id="statSigned">—</span>
       <span class="stat-label">Signed</span>
     </div>
+
     <div class="stat">
       <span class="stat-value muted" id="statTotal">—</span>
       <span class="stat-label">Total Parcels</span>
     </div>
+
     <div class="stat">
       <span class="stat-value" id="statPct" style="color:#f59e0b;">—</span>
       <span class="stat-label">% Assessment</span>
     </div>
+
     <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
       <div class="progress-label">
         <span>Toward 30% threshold</span>
         <span id="progressPct">0%</span>
       </div>
     </div>
+
     <div>
       <span class="status-dot" id="statusDot"></span>
       <span class="status-text" id="statusText">Loading…</span>
     </div>
+
     <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
   </div>
 </header>
@@ -377,11 +478,11 @@
 
 <div class="legend">
   <div class="legend-title">Ballot Status</div>
-  <div class="legend-item"><div class="legend-swatch swatch-signed"></div>Signed (Yes)</div>
-  <div class="legend-item"><div class="legend-swatch swatch-no"></div>Declined (No)</div>
+  <div class="legend-item"><div class="legend-swatch swatch-yes"></div>Yes</div>
+  <div class="legend-item"><div class="legend-swatch swatch-no"></div>No</div>
   <div class="legend-item"><div class="legend-swatch swatch-city"></div>City Property</div>
-  <div class="legend-item"><div class="legend-swatch swatch-N/A"></div>N/A</div>
-  <div class="legend-item"><div class="legend-swatch swatch-unsigned"></div>Not yet signed</div>
+  <div class="legend-item"><div class="legend-swatch swatch-na"></div>N/A</div>
+  <div class="legend-item"><div class="legend-swatch swatch-pending"></div>Not yet voted</div>
 </div>
 
 <script>
@@ -389,17 +490,19 @@
 const GEOJSON_URL = "https://raw.githubusercontent.com/downtownsfpartnership/dsfp-ballot-map/main/MAP_3_19_Renewal_Expansion.geojson";
 const SHEET_ID    = "1fN4u7AA5QQQNs5p4Zi9N2mJwpF3hhLTYVKlA3Q1k2zY";
 const SHEET_GID   = "1106530303";
+
 const BLKLOT_GEO  = "blklot";
 const BLKLOT_SHT  = "blklot";
 const STATUS_COL  = "2026 Ballot Vote";
 
 // ── MAP INIT ─────────────────────────────────────────────────────────────────
 const map = L.map('map', { zoomControl: true });
+
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
-  }).addTo(map);
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 20
+}).addTo(map);
 
 let geojsonLayer = null;
 
@@ -427,66 +530,120 @@ function hideLoading() {
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
-// signedPct is a direct percentage value (e.g. 15.41 means 15.41%)
-// threshold is 30 (percent), so progress = signedPct / 30
+function cleanVal(v) {
+  return String(v ?? '').replace(/^"|"$/g, '').replace(/^'|'$/g, '').trim();
+}
+
+function normalizeStatus(value) {
+  const raw = cleanVal(value).toLowerCase();
+
+  if (raw === 'yes' || raw === 'y') return 'yes';
+  if (raw === 'no' || raw === 'n') return 'no';
+
+  if (
+    raw === 'city property' ||
+    raw === 'city' ||
+    raw === 'public property'
+  ) {
+    return 'city property';
+  }
+
+  if (
+    raw === 'n/a' ||
+    raw === 'na' ||
+    raw === 'not applicable'
+  ) {
+    return 'n/a';
+  }
+
+  return 'pending';
+}
+
+// signedPct is a direct percentage value.
+// Example: 15.41 means 15.41%.
 function updateStats(signed, total, signedPct) {
   document.getElementById('statSigned').textContent = signed.toLocaleString();
   document.getElementById('statTotal').textContent  = total.toLocaleString();
+
   const pctOfThreshold = Math.min((signedPct / 30) * 100, 100);
   const pctDisplay = signedPct.toFixed(2) + '%';
+
   document.getElementById('progressFill').style.width = pctOfThreshold + '%';
   document.getElementById('statPct').textContent = pctDisplay;
-  document.getElementById('progressPct').textContent  = pctDisplay + ' signed';
+  document.getElementById('progressPct').textContent = pctDisplay + ' signed';
 }
 
 // ── FETCH SHEET CSV ──────────────────────────────────────────────────────────
 async function fetchSheetData() {
   const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTxcvfFDuMncwINXVoJgBe49y0F5zxCjukptMb8NzuTVKkQJ47NDf7lZbwQ6jYWA1X7Tt_3X3kopzfZ/pub?gid=2002804202&single=true&output=csv&cachebust=${Date.now()}`;
+
   const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
+
+  if (!res.ok) {
+    throw new Error(`Sheet fetch failed: ${res.status}`);
+  }
+
   const text = await res.text();
 
   const rows = text.trim().split('\n').map(r => {
     const cols = [];
-    let cur = '', inQ = false;
+    let cur = '';
+    let inQ = false;
+
     for (let i = 0; i < r.length; i++) {
       const c = r[i];
-      if (c === '"') { inQ = !inQ; }
-      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else { cur += c; }
+
+      if (c === '"') {
+        inQ = !inQ;
+      } else if (c === ',' && !inQ) {
+        cols.push(cur.trim());
+        cur = '';
+      } else {
+        cur += c;
+      }
     }
+
     cols.push(cur.trim());
     return cols;
   });
 
-  if (rows.length < 2) throw new Error('Sheet appears empty');
+  if (rows.length < 2) {
+    throw new Error('Sheet appears empty');
+  }
 
-  const headers = rows[0].map(h => h.replace(/^"|"$/g, '').trim());
+  const headers = rows[0].map(h => cleanVal(h));
+
   const blklotIdx   = headers.findIndex(h => h.toLowerCase() === BLKLOT_SHT.toLowerCase());
   const statusIdx   = headers.findIndex(h => h.toLowerCase() === STATUS_COL.toLowerCase());
   const addressIdx  = headers.findIndex(h => h.toLowerCase().includes('address'));
   const totalPctIdx = headers.findIndex(h => h.toLowerCase().includes('total percentage'));
 
-  if (blklotIdx === -1) throw new Error(`Column "${BLKLOT_SHT}" not found. Headers: ${headers.join(', ')}`);
-  if (statusIdx === -1) throw new Error(`Column "${STATUS_COL}" not found. Headers: ${headers.join(', ')}`);
+  if (blklotIdx === -1) {
+    throw new Error(`Column "${BLKLOT_SHT}" not found. Headers: ${headers.join(', ')}`);
+  }
+
+  if (statusIdx === -1) {
+    throw new Error(`Column "${STATUS_COL}" not found. Headers: ${headers.join(', ')}`);
+  }
 
   const lookup = {};
 
-  // ── Compute signedPct directly from the sheet here, with no GeoJSON dependency.
-  // This is the single source of truth for the percentage.
-  let signedPctFromSheet = 0;
   let signedCountFromSheet = 0;
 
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    const id  = row[blklotIdx]?.replace(/^"|"$/g, '').trim();
+
+    const id = cleanVal(row[blklotIdx]);
+
     if (!id) continue;
 
-    const status = (row[statusIdx] || '').replace(/^"|"$/g, '').trim().toLowerCase();
+    const rawStatus = cleanVal(row[statusIdx]);
+    const status = normalizeStatus(rawStatus);
 
     const rawPct = totalPctIdx >= 0
-      ? (row[totalPctIdx] || '').replace(/^"|"$/g, '').replace('%', '').trim()
+      ? cleanVal(row[totalPctIdx]).replace('%', '')
       : '0';
+
     const totalPct = parseFloat(rawPct) || 0;
 
     if (status === 'yes') {
@@ -494,23 +651,35 @@ async function fetchSheetData() {
     }
 
     lookup[id] = {
-      status:   (row[statusIdx] || '').replace(/^"|"$/g, '').trim(),
-      address:  addressIdx >= 0 ? (row[addressIdx] || '').replace(/^"|"$/g, '').trim() : '',
+      rawStatus,
+      status,
+      address: addressIdx >= 0 ? cleanVal(row[addressIdx]) : '',
       totalPct
     };
   }
 
-  // Attach the sheet-computed totals so renderMap can use them directly
-    // Compute percentage: sum(assessment | yes) / sum(assessment | yes+no+n/a)
-  let numerator   = 0;
+  // Compute percentage:
+  // numerator = assessment for Yes
+  // denominator = assessment for Yes + No + N/A
+  // City Property and Pending are excluded from this denominator.
+  let numerator = 0;
   let denominator = 0;
+
   for (const [key, rec] of Object.entries(lookup)) {
     if (key.startsWith('__')) continue;
-    const s = rec.status.trim().toLowerCase();
-    const amt = rec.totalPct; // this is the raw assessment dollar amount from the sheet
-    if (s === 'yes' || s === 'no' || s === 'n/a') denominator += amt;
-    if (s === 'yes') numerator += amt;
+
+    const s = rec.status;
+    const amt = rec.totalPct;
+
+    if (s === 'yes' || s === 'no' || s === 'n/a') {
+      denominator += amt;
+    }
+
+    if (s === 'yes') {
+      numerator += amt;
+    }
   }
+
   const computedPct = denominator > 0 ? (numerator / denominator) * 100 : 0;
 
   lookup.__sheetSignedPct   = computedPct;
@@ -522,118 +691,218 @@ async function fetchSheetData() {
 // ── FETCH GEOJSON ────────────────────────────────────────────────────────────
 async function fetchGeoJSON() {
   const res = await fetch(GEOJSON_URL);
-  if (!res.ok) throw new Error(`GeoJSON fetch failed: ${res.status}`);
+
+  if (!res.ok) {
+    throw new Error(`GeoJSON fetch failed: ${res.status}`);
+  }
+
   return res.json();
 }
 
 // ── PARCEL STATUS HELPER ─────────────────────────────────────────────────────
-function geoVal(v) { return String(v || '').replace(/^'|'$/g, '').trim(); }
 function getStatus(feature, lookup) {
-  const id = geoVal(feature.properties?.[BLKLOT_GEO]);
+  const id = cleanVal(feature.properties?.[BLKLOT_GEO]);
   const rec = lookup[id];
-  const raw = (rec?.status || geoVal(feature.properties?.['Ballot Tracking'])).trim().toLowerCase();
-  if (raw === 'N/A') return 'N/A';
-  if (raw === 'yes') return 'yes';
-  if (raw === 'no')  return 'no';
-  if (raw === 'city property') return 'city property';
-  return 'pending';
+
+  const sheetStatus = rec?.status;
+  const geoStatus = normalizeStatus(
+    feature.properties?.[STATUS_COL] ||
+    feature.properties?.['Ballot Tracking'] ||
+    ''
+  );
+
+  return sheetStatus || geoStatus || 'pending';
 }
 
 function getParcelStyle(status) {
-  if (status === 'yes') return { fillColor: '#16a34a', fillOpacity: 0.7, color: '#16a34a', weight: 2, opacity: 1 };
-  if (status === 'no')  return { fillColor: '#ef4444', fillOpacity: 0.4, color: '#ef4444', weight: 2, opacity: 1 };
-  if (status === 'N/A') return { fillColor: '#d946ef', fillOpacity: 0.45, color: '#d946ef', weight: 2, opacity: 1 };
-  if (status === 'city property')  return { fillColor: '#0F88A8', fillOpacity: 0.5, color: '#0F88A8', weight: 2, opacity: 1 };
-  if (status === 'partial') return { fillColor: 'url(#hatch-green)', fillOpacity: 1, color: '#16a34a', weight: 2, opacity: 1, className: 'parcel-partial' };
-  return                       { fillColor: '#f59e0b', fillOpacity: 0.15, color: '#d97706', weight: 1, opacity: 0.8 };
+  if (status === 'yes') {
+    return {
+      fillColor: '#16a34a',
+      fillOpacity: 0.7,
+      color: '#16a34a',
+      weight: 2,
+      opacity: 1
+    };
+  }
+
+  if (status === 'city property') {
+    return {
+      fillColor: '#16a34a',
+      fillOpacity: 0.7,
+      color: '#16a34a',
+      weight: 2,
+      opacity: 1
+    };
+  }
+
+  if (status === 'no') {
+    return {
+      fillColor: '#ef4444',
+      fillOpacity: 0.45,
+      color: '#ef4444',
+      weight: 2,
+      opacity: 1
+    };
+  }
+
+  if (status === 'n/a') {
+    return {
+      fillColor: '#f59e0b',
+      fillOpacity: 0.5,
+      color: '#d97706',
+      weight: 2,
+      opacity: 1
+    };
+  }
+
+  if (status === 'partial') {
+    return {
+      fillColor: 'url(#hatch-green)',
+      fillOpacity: 1,
+      color: '#16a34a',
+      weight: 2,
+      opacity: 1,
+      className: 'parcel-partial'
+    };
+  }
+
+  return {
+    fillColor: '#64748b',
+    fillOpacity: 0.28,
+    color: '#94a3b8',
+    weight: 1,
+    opacity: 0.75
+  };
 }
 
 function renderMap(geojson, lookup) {
-  if (geojsonLayer) { map.removeLayer(geojsonLayer); }
+  if (geojsonLayer) {
+    map.removeLayer(geojsonLayer);
+  }
 
   if (!document.getElementById('hatch-svg-defs')) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
     svg.id = 'hatch-svg-defs';
     svg.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden');
+
     svg.innerHTML = `<defs>
       <pattern id="hatch-green" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
         <line x1="0" y1="0" x2="0" y2="8" stroke="#22c55e" stroke-width="2.5" stroke-opacity="0.9"/>
       </pattern>
     </defs>`;
+
     document.body.appendChild(svg);
   }
 
   const boundaryStatuses = {};
-  const boundaryKeys = new Map(); // feature index → coords key
 
-  geojson.features.forEach((f, i) => {
+  geojson.features.forEach((f) => {
     const coords = JSON.stringify(f.geometry?.coordinates);
-    const id = geoVal(f.properties?.[BLKLOT_GEO]);
+    const id = cleanVal(f.properties?.[BLKLOT_GEO]);
     const rec = lookup[id];
+
     if (rec) {
-      const raw = rec.status.replace(/^"|"$/g, '').trim().toLowerCase();
-      const status = raw === 'yes' ? 'yes' : raw === 'no' ? 'no' : raw === 'city property' ? 'city property' : raw === 'N/A' ? 'N/A' : 'N/A';
-      if (!boundaryStatuses[coords]) boundaryStatuses[coords] = [];
+      const status = rec.status || 'pending';
+
+      if (!boundaryStatuses[coords]) {
+        boundaryStatuses[coords] = [];
+      }
+
       boundaryStatuses[coords].push(status);
     }
-    boundaryKeys.set(i, coords);
   });
 
-  // TARGETED DEBUG
-  const ids345 = ['0261018','0261019','0261020'];
-  ids345.forEach(id => console.log(id, '→ lookup:', lookup[id]?.status, '| rec exists:', !!lookup[id]));
-  const coords345 = JSON.stringify(geojson.features.find(f => geoVal(f.properties?.blklot) === '0261018')?.geometry?.coordinates);
-  console.log('345 boundary statuses:', boundaryStatuses[coords345]);
   let total = 0;
 
-  // Use the sheet-computed values directly — no GeoJSON matching needed for the percentage
-  const signedPct   = lookup.__sheetSignedPct;
-  const signedCount = lookup.__sheetSignedCount;
+  const signedPct   = lookup.__sheetSignedPct || 0;
+  const signedCount = lookup.__sheetSignedCount || 0;
 
   geojsonLayer = L.geoJSON(geojson, {
     style: feature => {
       const coords = JSON.stringify(feature.geometry?.coordinates);
       const statuses = boundaryStatuses[coords] || [];
-      const nonPendingStatuses = statuses.filter(s => s !== 'pending');
+
       const hasYes = statuses.some(s => s === 'yes');
-      const allYes = statuses.every(s => s === 'yes');
+      const allYes = statuses.length > 0 && statuses.every(s => s === 'yes');
+
+      // Your existing force-green exception.
       const FORCE_FULL_GREEN = new Set(['0261018','0261019','0261020']);
       const FORCE_GREEN_PRIMARY = '0261018';
-      const id0 = geoVal(feature.properties?.[BLKLOT_GEO]);
+
+      const id0 = cleanVal(feature.properties?.[BLKLOT_GEO]);
+
       const isPartial = !allYes && hasYes && !FORCE_FULL_GREEN.has(id0);
+
       if (FORCE_FULL_GREEN.has(id0) && id0 !== FORCE_GREEN_PRIMARY) {
-        return { fillColor: 'transparent', fillOpacity: 0, color: 'transparent', weight: 0, opacity: 0 };
+        return {
+          fillColor: 'transparent',
+          fillOpacity: 0,
+          color: 'transparent',
+          weight: 0,
+          opacity: 0
+        };
       }
+
       const effectiveStatus = isPartial ? 'partial' : getStatus(feature, lookup);
+
       return getParcelStyle(effectiveStatus);
     },
+
     onEachFeature: (feature, layer) => {
       total++;
-      const id     = geoVal(feature.properties?.[BLKLOT_GEO]);
-      const rec    = lookup[id];
+
+      const id = cleanVal(feature.properties?.[BLKLOT_GEO]);
+      const rec = lookup[id];
       const status = getStatus(feature, lookup);
 
-      const address    = geoVal(feature.properties?.['Site Address']) || rec?.address || '—';
-      const ballotVote = geoVal(feature.properties?.['2026 Ballot Vote']) || '—';
+      const address =
+        cleanVal(feature.properties?.['Site Address']) ||
+        rec?.address ||
+        '—';
+
+      const ballotVote =
+        rec?.rawStatus ||
+        cleanVal(feature.properties?.[STATUS_COL]) ||
+        cleanVal(feature.properties?.['Ballot Tracking']) ||
+        '—';
 
       const statusBadge =
-        status === 'yes' ? `<span class="badge badge-yes">Yes</span>` :
-        status === 'no'  ? `<span class="badge badge-no-explicit">No</span>` :
-        status === 'N/A' ? `<span class="badge badge-N/A">N/A</span>` :
-        status === 'city property'  ? `<span class="badge badge-city">City Property</span>` :
-                           `<span class="badge badge-no">Not signed</span>`;
+        status === 'yes'
+          ? `<span class="badge badge-yes">Yes</span>`
+        : status === 'city property'
+          ? `<span class="badge badge-city">City Property</span>`
+        : status === 'no'
+          ? `<span class="badge badge-no-explicit">No</span>`
+        : status === 'n/a'
+          ? `<span class="badge badge-na">N/A</span>`
+        : `<span class="badge badge-pending">Not yet voted</span>`;
 
       layer.bindPopup(`
         <div class="popup-header">${id}</div>
-        <div class="popup-row"><span class="popup-key">Address</span><span class="popup-val">${address}</span></div>
-        <div class="popup-row"><span class="popup-key">Ballot</span><span class="popup-val">${statusBadge}</span></div>
-        <div class="popup-row"><span class="popup-key">2026 Ballot</span><span class="popup-val">${ballotVote}</span></div>
+        <div class="popup-row">
+          <span class="popup-key">Address</span>
+          <span class="popup-val">${address}</span>
+        </div>
+        <div class="popup-row">
+          <span class="popup-key">Ballot</span>
+          <span class="popup-val">${statusBadge}</span>
+        </div>
+        <div class="popup-row">
+          <span class="popup-key">2026 Ballot</span>
+          <span class="popup-val">${ballotVote}</span>
+        </div>
       `, { maxWidth: 280 });
 
       layer.on('mouseover', function() {
         const s = getParcelStyle(status);
-        this.setStyle({ ...s, fillOpacity: s.fillOpacity + 0.15, weight: 2.5 });
+        this.setStyle({
+          ...s,
+          fillOpacity: Math.min((s.fillOpacity || 0.3) + 0.15, 1),
+          weight: 2.5
+        });
       });
+
       layer.on('mouseout', function() {
         geojsonLayer.resetStyle(this);
       });
@@ -641,9 +910,14 @@ function renderMap(geojson, lookup) {
   }).addTo(map);
 
   map.fitBounds(geojsonLayer.getBounds(), { padding: [24, 24] });
+
   updateStats(signedCount, total, signedPct);
 
-  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const now = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   setStatus('live', `Updated ${now}`);
 }
 
@@ -654,10 +928,17 @@ async function loadData() {
 
   try {
     document.getElementById('loadingMsg').textContent = 'Fetching GeoJSON…';
-    const [geojson, lookup] = await Promise.all([fetchGeoJSON(), fetchSheetData()]);
+
+    const [geojson, lookup] = await Promise.all([
+      fetchGeoJSON(),
+      fetchSheetData()
+    ]);
+
     document.getElementById('loadingMsg').textContent = 'Rendering map…';
+
     renderMap(geojson, lookup);
     hideLoading();
+
   } catch (err) {
     hideLoading();
     setStatus('error', 'Load failed');
@@ -668,5 +949,6 @@ async function loadData() {
 
 loadData();
 </script>
+
 </body>
 </html>
