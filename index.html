@@ -455,16 +455,6 @@
       <span class="stat-label">% Assessment</span>
     </div>
 
-    <div class="progress-wrap">
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" style="width:0%"></div>
-      </div>
-      <div class="progress-label">
-        <span>Toward 30% threshold</span>
-        <span id="progressPct">0%</span>
-      </div>
-    </div>
-
     <div>
       <span class="status-dot" id="statusDot"></span>
       <span class="status-text" id="statusText">Loading…</span>
@@ -565,12 +555,8 @@ function updateStats(signed, total, signedPct) {
   document.getElementById('statSigned').textContent = signed.toLocaleString();
   document.getElementById('statTotal').textContent  = total.toLocaleString();
 
-  const pctOfThreshold = Math.min((signedPct / 30) * 100, 100);
   const pctDisplay = signedPct.toFixed(2) + '%';
-
-  document.getElementById('progressFill').style.width = pctOfThreshold + '%';
   document.getElementById('statPct').textContent = pctDisplay;
-  document.getElementById('progressPct').textContent = pctDisplay + ' signed';
 }
 
 // ── FETCH SHEET CSV ──────────────────────────────────────────────────────────
