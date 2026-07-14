@@ -873,7 +873,7 @@ function renderMap(geojson, lookup) {
         : `<span class="badge badge-pending">Not yet voted</span>`;
 
       layer.bindPopup(`
-        <div class="popup-header">${id}</div>
+        <div class="popup-header">${resolveLookupId(id)}</div>
         <div class="popup-row">
           <span class="popup-key">Address</span>
           <span class="popup-val">${address}</span>
