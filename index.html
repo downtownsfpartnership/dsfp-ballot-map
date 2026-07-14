@@ -484,6 +484,14 @@ const SHEET_GID   = "1106530303";
 const BLKLOT_GEO  = "blklot";
 const BLKLOT_SHT  = "blklot";
 const STATUS_COL  = "2026 Ballot Vote";
+  
+const APN_OVERRIDES = {
+  '0289003': '0289004'
+};
+
+function resolveLookupId(id) {
+  return APN_OVERRIDES[id] || id;
+}
 
 // ── MAP INIT ─────────────────────────────────────────────────────────────────
 const map = L.map('map', { zoomControl: true });
@@ -688,7 +696,7 @@ async function fetchGeoJSON() {
 // ── PARCEL STATUS HELPER ─────────────────────────────────────────────────────
 function getStatus(feature, lookup) {
   const id = cleanVal(feature.properties?.[BLKLOT_GEO]);
-  const rec = lookup[id];
+  const rec = lookup[resolveLookupId(id)];
 
   const sheetStatus = rec?.status;
   const geoStatus = normalizeStatus(
@@ -786,7 +794,7 @@ function renderMap(geojson, lookup) {
   geojson.features.forEach((f) => {
     const coords = JSON.stringify(f.geometry?.coordinates);
     const id = cleanVal(f.properties?.[BLKLOT_GEO]);
-    const rec = lookup[id];
+    const rec = lookup[resolveLookupId(id)];
 
     if (rec) {
       const status = rec.status || 'pending';
@@ -839,7 +847,7 @@ function renderMap(geojson, lookup) {
       total++;
 
       const id = cleanVal(feature.properties?.[BLKLOT_GEO]);
-      const rec = lookup[id];
+      const rec = lookup[resolveLookupId(id)];
       const status = getStatus(feature, lookup);
 
       const address =
